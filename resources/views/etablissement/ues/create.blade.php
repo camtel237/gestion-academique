@@ -9,7 +9,7 @@
 @endphp
 
 @section('content')
-<div class="max-w-2xl mx-auto">
+<div class="max-w-4xl mx-auto">
     <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
         @if($errors->any())
             <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
@@ -30,62 +30,68 @@
         <form action="{{ route('ues.store') }}" method="POST" class="space-y-4">
             @csrf
 
-            {{-- Ces deux selects ne servent qu'à filtrer la liste des semestres,
-                 aucun des deux n'est envoyé au serveur (pas de name= lié au modèle UE) --}}
-            <div>
-                <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Année académique *</label>
-                <select id="annee_select"
-                        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition" required>
-                    <option value="">Sélectionner une année</option>
-                    @foreach($anneesAcademiques as $annee)
-                        <option value="{{ $annee->id }}">{{ $annee->libelle }}</option>
-                    @endforeach
-                </select>
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {{-- Année académique --}}
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Année académique *</label>
+                    <select id="annee_select"
+                            class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition" required>
+                        <option value="">Sélectionner une année</option>
+                        @foreach($anneesAcademiques as $annee)
+                            <option value="{{ $annee->id }}">{{ $annee->libelle }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div>
-                <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Niveau *</label>
-                <select id="niveau_select"
-                        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition" required disabled>
-                    <option value="">Sélectionner d'abord une année</option>
-                </select>
-            </div>
+                {{-- Niveau --}}
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Niveau *</label>
+                    <select id="niveau_select"
+                            class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition" required disabled>
+                        <option value="">Sélectionner d'abord une année</option>
+                    </select>
+                </div>
 
-            <div>
-                <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Semestre *</label>
-                <select name="semestre_id" id="semestre_select"
-                        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition @error('semestre_id') border-red-500 @enderror"
-                        required disabled>
-                    <option value="">Sélectionner d'abord un niveau</option>
-                </select>
-                @error('semestre_id') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-            </div>
+                {{-- Semestre --}}
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Semestre *</label>
+                    <select name="semestre_id" id="semestre_select"
+                            class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition @error('semestre_id') border-red-500 @enderror"
+                            required disabled>
+                        <option value="">Sélectionner d'abord un niveau</option>
+                    </select>
+                    @error('semestre_id') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                </div>
 
-            <div>
-                <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Total crédits *</label>
-                <input type="number" name="total_credit" value="{{ old('total_credit') }}"
-                       class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition @error('total_credit') border-red-500 @enderror"
-                       placeholder="Ex: 6" min="1" max="60" required>
-                @error('total_credit') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                <p class="text-xs text-slate-400 mt-1">
-                    <i class="fa-solid fa-info-circle"></i> Le code de l'UE sera généré automatiquement (ex: UE001)
-                </p>
-            </div>
+                {{-- Position sur le relevé --}}
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Position sur le relevé</label>
+                    <input type="number" name="position_releve" value="{{ old('position_releve') }}"
+                           class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition @error('position_releve') border-red-500 @enderror"
+                           placeholder="Ex: 1" min="1">
+                    @error('position_releve') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                </div>
 
-            <div>
-                <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Libellé *</label>
-                <input type="text" name="libelle" value="{{ old('libelle') }}"
-                       class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition @error('libelle') border-red-500 @enderror"
-                       placeholder="Ex: Programmation Web">
-                @error('libelle') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-            </div>
+                {{-- Total crédits --}}
+                <div class="md:col-span-2">
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Total crédits *</label>
+                    <input type="number" name="total_credit" value="{{ old('total_credit') }}"
+                           class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition @error('total_credit') border-red-500 @enderror"
+                           placeholder="Ex: 6" min="1" max="60" required>
+                    @error('total_credit') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                    <p class="text-xs text-slate-400 mt-1">
+                        <i class="fa-solid fa-info-circle"></i> Le code de l'UE sera généré automatiquement (ex: UE001)
+                    </p>
+                </div>
 
-            <div>
-                <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Position sur le relevé</label>
-                <input type="number" name="position_releve" value="{{ old('position_releve') }}"
-                       class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition @error('position_releve') border-red-500 @enderror"
-                       placeholder="Ex: 1" min="1">
-                @error('position_releve') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                {{-- Libellé --}}
+                <div class="md:col-span-2">
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Libellé *</label>
+                    <input type="text" name="libelle" value="{{ old('libelle') }}"
+                           class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition @error('libelle') border-red-500 @enderror"
+                           placeholder="Ex: Programmation Web">
+                    @error('libelle') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                </div>
             </div>
 
             <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">

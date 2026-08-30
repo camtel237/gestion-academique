@@ -35,7 +35,7 @@ class Etudiant extends Model
     public function inscriptions()
     {
         return $this->hasMany(Inscription::class);
-    }
+    }// a modifie tobelong 
 
     public function getNomCompletAttribute()
     {

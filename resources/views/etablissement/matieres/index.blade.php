@@ -9,55 +9,45 @@
 @endphp
 
 @section('content')
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-    <div class="flex flex-wrap gap-2 flex-1">
-        <div class="relative max-w-sm flex-1 min-w-[200px]">
-            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <form method="GET" action="{{ route('matieres.index') }}" class="inline">
+<form method="GET" action="{{ route('matieres.index') }}" id="matieresFilterForm">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+        <div class="flex flex-wrap gap-2 flex-1">
+            <div class="relative max-w-sm flex-1 min-w-[200px]">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                 <input type="text" name="search" placeholder="Rechercher une matière..."
                        value="{{ request('search') }}"
                        class="w-full pl-10 pr-3 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-200 outline-none transition"/>
-            </form>
-        </div>
-        <div class="relative">
-            <form method="GET" action="{{ route('matieres.index') }}" class="inline">
-                <select name="unite_enseignement_id" onchange="this.form.submit()"
-                        class="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-200 outline-none transition">
-                    <option value="">Toutes les UE</option>
-                    @foreach($ues as $ue)
-                        <option value="{{ $ue->id }}" {{ request('unite_enseignement_id') == $ue->id ? 'selected' : '' }}>
-                            {{ $ue->libelle }}
-                        </option>
-                    @endforeach
-                </select>
-            </form>
-        </div>
-        <div class="relative">
-            <form method="GET" action="{{ route('matieres.index') }}" class="inline">
-                <select name="semestre_id" onchange="this.form.submit()"
-                        class="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-200 outline-none transition">
-                    <option value="">Tous les semestres</option>
-                    @foreach($semestres as $semestre)
-                        <option value="{{ $semestre->id }}" {{ request('semestre_id') == $semestre->id ? 'selected' : '' }}>
-                            {{ $semestre->libelle }}
-                        </option>
-                    @endforeach
-                </select>
-            </form>
-        </div>
-    </div>
-    <div class="flex gap-2 flex-wrap">
-        <button onclick="toast('Export Excel lancé', 'info')"
-                class="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm hover:bg-slate-50 transition">
-            <i class="fa-solid fa-file-excel text-green-600"></i> Excel
-        </button>
-        <a href="{{ route('matieres.create') }}"
-           class="px-4 py-2.5 grad-blue text-white rounded-xl text-sm font-semibold shadow hover:opacity-95 transition">
-            <i class="fa-solid fa-plus mr-1"></i> Nouvelle matière
-        </a>
-    </div>
-</div>
+            </div>
 
+            <select name="specialite_id" onchange="this.form.submit()"
+                    class="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-200 outline-none transition">
+                <option value="">Toutes les spécialités</option>
+                @foreach($specialites as $specialite)
+                    <option value="{{ $specialite->id }}" {{ request('specialite_id') == $specialite->id ? 'selected' : '' }}>
+                        {{ $specialite->libelle }}
+                    </option>
+                @endforeach
+            </select>
+
+            <select name="semestre_id" onchange="this.form.submit()"
+                    class="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-200 outline-none transition"
+                    {{ $semestres->isEmpty() ? 'disabled' : '' }}>
+                <option value="">{{ $semestres->isEmpty() ? "Choisir une spécialité d'abord" : 'Tous les niveaux' }}</option>
+                @foreach($semestres as $semestre)
+                    <option value="{{ $semestre->id }}" {{ request('semestre_id') == $semestre->id ? 'selected' : '' }}>
+                        {{ $semestre->niveau->libelle ?? '-' }} ({{ $semestre->libelle }})
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="flex gap-2 flex-wrap">
+            <a href="{{ route('matieres.create') }}"
+               class="px-4 py-2.5 grad-blue text-white rounded-xl text-sm font-semibold shadow hover:opacity-95 transition">
+                <i class="fa-solid fa-plus mr-1"></i> Nouvelle matière
+            </a>
+        </div>
+    </div>
+</form>
 
 <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden">
     <div class="overflow-x-auto scrollbar-thin">

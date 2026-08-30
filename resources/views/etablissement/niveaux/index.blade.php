@@ -21,12 +21,12 @@
         </div>
         <div class="relative">
             <form method="GET" action="{{ route('niveaux.index') }}" class="inline">
-                <select name="departement_id" onchange="this.form.submit()"
+                <select name="specialite_id" onchange="this.form.submit()"
                         class="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-200 outline-none transition">
-                    <option value="">Tous les départements</option>
-                    @foreach($departements as $departement)
-                        <option value="{{ $departement->id }}" {{ request('departement_id') == $departement->id ? 'selected' : '' }}>
-                            {{ $departement->libelle }}
+                    <option value="">Toutes les spécialités</option>
+                    @foreach($specialites as $specialite)
+                        <option value="{{ $specialite->id }}" {{ request('specialite_id') == $specialite->id ? 'selected' : '' }}>
+                            {{ $specialite->libelle }}
                         </option>
                     @endforeach
                 </select>
@@ -35,10 +35,7 @@
     </div>
     <div class="flex gap-2 flex-wrap">
        
-        <button onclick="toast('Export Excel lancé', 'info')"
-                class="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm hover:bg-slate-50 transition">
-            <i class="fa-solid fa-file-excel text-green-600"></i> Excel
-        </button>
+       
         <a href="{{ route('niveaux.create') }}"
            class="px-4 py-2.5 grad-blue text-white rounded-xl text-sm font-semibold shadow hover:opacity-95 transition">
             <i class="fa-solid fa-plus mr-1"></i> Nouveau niveau

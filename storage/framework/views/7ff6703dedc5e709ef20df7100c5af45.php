@@ -1,234 +1,396 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Carte d'étudiant</title>
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f1f5f9;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+        /*
+        |--------------------------------------------------------------------------
+        | CONFIGURATION DOMPDF
+        |--------------------------------------------------------------------------
+        | Pas de "size" ici : la taille de page est imposée par
+        | $pdf->setPaper([0, 0, 383, 216]) dans le contrôleur.
+        */
+
+        @page {
+            margin: 0;
         }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            background: #ffffff;
+            color: #0f172a;
+        }
+
+        .page {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | CARTE
+        |--------------------------------------------------------------------------
+        */
 
         .card {
             width: 450px;
+            height: 205px;
+
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -102.5px;
+            margin-left: -225px;
+             display: flex;
             background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+
             overflow: hidden;
-            border: 1px solid #cbd5e0;
-            display: flex;
         }
 
-        /* Colonne gauche renversée */
+        /*
+        |--------------------------------------------------------------------------
+        | COLONNE GAUCHE
+        |--------------------------------------------------------------------------
+        */
+
         .left-side {
-            width: 40px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 36px;
+            height: 205px;
             background: #f8fafc;
-            border-right: 2px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border-right: 1px solid #e2e8f0;
         }
+
         .reversed-title {
-            transform: rotate(-90deg);
-            white-space: nowrap;
-            font-size: 12px;
-            font-weight: 800;
+            position: absolute;
+            top: 78px;
+            left: -33px;
+            width: 105px;
+            font-size: 10.5px;
+            font-weight: bold;
             color: #1e3a8a;
             text-transform: uppercase;
+            letter-spacing: 0.3px;
+            transform: rotate(-90deg);
+            white-space: nowrap;
         }
+
         .reversed-title span {
-            display: block;
-            color: #15803d;
-            font-size: 10px;
+            color: #16a34a;
+            font-size: 8.5px;
+            margin-left: 6px;
+            font-weight: bold;
         }
 
-        /* Contenu principal */
+        /*
+        |--------------------------------------------------------------------------
+        | PARTIE DROITE
+        |--------------------------------------------------------------------------
+        */
+
         .right-side {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+            position: absolute;
+            left: 36px;
+            top: 0;
+            width: 413px;
+            height: 205px;
         }
 
-        /* En-tête */
+        /*
+        |--------------------------------------------------------------------------
+        | EN-TÊTE (fond blanc, pas gris)
+        |--------------------------------------------------------------------------
+        */
+
         .card-top {
-            background: #f8fafc;
-            border-bottom: 2px solid #e2e8f0;
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .flag {
-            width: 36px;
-            height: 24px;
-            display: flex;
-            border: 1px solid #cbd5e0;
-            border-radius: 2px;
-            overflow: hidden;
             position: relative;
+            width: 100%;
+            height: 62px;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
         }
-        .flag .col { flex: 1; height: 100%; }
-        .flag .green { background: #007a5e; }
-        .flag .red { background: #ce1126; display: flex; align-items: center; justify-content: center; }
-        .flag .yellow { background: #fcd116; }
-        .flag .star { color: #fcd116; font-size: 8px; line-height: 1; }
 
-        .official-block { text-align: center; font-size: 8px; color: #334155; font-weight: 700; line-height: 1.2; display: flex; align-items: center; gap: 10px;}
-        .logo-img { width: 35px; height: auto; }
+    
 
-        /* Corps jaune */
+        .flag img {
+            width: 34px;
+            height: 34px;
+            object-fit: cover;
+            margin-top: 5px;
+        }
+        .official-block {
+            position: absolute;
+            left: 60px;
+            top: 6px;
+            width: 345px;
+            height: 50px;
+            text-align: center;
+            font-size: 7px;
+            color: #334155;
+            font-weight: bold;
+            line-height: 1.3;
+        }
+
+        .official-left-logo {
+            position: absolute;
+            left: 0;
+            top: 5px;
+            width: 34px;
+            height: 34px;
+        }
+
+      .official-right-logo {
+    position: absolute;
+    right: 15px;
+    top: 5px;
+    width: 30px;
+    height: 34px;
+}
+
+        .official-text {
+            position: absolute;
+            left: 42px;
+            right: 38px;
+            top: 0;
+            text-align: center;
+        }
+
+        .official-text .country {
+            color: #1e3a8a;
+            font-size: 7.5px;
+        }
+
+        .official-text .motto {
+            font-style: italic;
+            font-weight: normal;
+            color: #475569;
+        }
+
+        .official-text .ministry {
+            font-size: 7px;
+        }
+
+        .official-text .university {
+            font-size: 8px;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | CORPS (fond jaune clair)
+        |--------------------------------------------------------------------------
+        */
+
         .card-body {
-            padding: 16px;
+            position: relative;
+            width: 100%;
+            height: 108px;
             background: #fef9c3;
-            display: flex;
-            gap: 16px;
-            align-items: center;
-            flex: 1;
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | PHOTO — cercle bleu clair, icône grise
+        |--------------------------------------------------------------------------
+        */
 
         .avatar {
-            width: 95px;
-            height: 95px;
-            background: #edf2f7;
-            border-radius: 50%; /* Photo encerclée */
-            border: 3px solid #cbd5e0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            color: #a0aec0;
-            flex-shrink: 0;
+            position: absolute;
+            left: 16px;
+            top: 12px;
+            width: 82px;
+            height: 82px;
+            background: #dbeafe;
+            border: 2px solid #bfdbfe;
+            border-radius: 50%;
             overflow: hidden;
+            text-align: center;
         }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-        .info { flex: 1; }
-        .info-row { margin-bottom: 5px; font-size: 11px; white-space: nowrap; }
-        .info-row .lbl { color: #64748b; font-size: 9px; font-weight: 700; text-transform: uppercase; display: inline; }
-        .info-row .val { color: #0f172a; font-weight: 700; text-transform: uppercase; }
+        .avatar img {
+            width: 78px;
+            height: 78px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
 
-        /* Pied de carte jaune, Validité à droite */
+        .avatar-placeholder {
+            font-size: 34px;
+            line-height: 78px;
+            color: #93c5fd;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | INFORMATIONS — libellés en bleu, valeurs en noir gras
+        |--------------------------------------------------------------------------
+        */
+
+        .info {
+            position: absolute;
+            left: 112px;
+            top: 15px;
+            width: 285px;
+        }
+
+        .info-row {
+            width: 100%;
+            margin-bottom: 8px;
+            font-size: 10px;
+            line-height: 1.3;
+            white-space: nowrap;
+        }
+
+        .info-row .lbl {
+            color: #2563eb;
+            font-size: 9.5px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .info-row .val {
+            color: #0f172a;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | PIED DE CARTE
+        |--------------------------------------------------------------------------
+        */
+
         .card-bottom {
+            position: relative;
+            width: 100%;
+            height: 35px;
             background: #fef9c3;
-            padding: 10px 16px;
-            display: flex;
-            justify-content: flex-end; /* Validité à droite */
-            align-items: center;
-            border-top: 1px solid #e2e8f0;
+            border-top: 1px solid #fde68a;
         }
-        .card-bottom .validity { font-size: 12px; color: #dc2626; font-weight: 800; text-transform: uppercase; }
 
-        /* Suppression boutons, voir code original */
-        .actions {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .btn {
-            padding: 9px 18px;
-            border: none;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: background 0.2s;
-        }
-        .btn-success { background: #16a34a; color: white; }
-        .btn-success:hover { background: #15803d; }
-        .btn-secondary { background: #cbd5e1; color: #334155; }
-        .btn-secondary:hover { background: #94a3b8; }
-
-        @media print {
-            .no-print { display: none !important; }
-            .card { box-shadow: none !important; }
-            body { background: white !important; padding: 0 !important; }
+        .validity {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 10.5px;
+            color: #dc2626;
+            font-weight: bold;
+            text-transform: uppercase;
         }
     </style>
 </head>
+
 <body>
-    <div>
-        <!-- Carte -->
-        <div class="card">
-            <!-- Colonne renversée à gauche -->
-            <div class="left-side">
-                <div class="reversed-title">
-                    Carte d'étudiant
-                    <span>Student Card</span>
+
+<div class="page">
+
+    <div class="card">
+
+        <!-- BANDE GAUCHE -->
+      <div class="left-side">
+    <div class="flag">
+        <img src="<?php echo e(public_path('images/effets/cmr.jpeg')); ?>" alt="Drapeau Cameroun">
+    </div>
+    <div class="reversed-title">
+        CARTE D'ÉTUDIANT
+        <span>STUDENT CARD</span>
+    </div>
+</div>
+        <!-- PARTIE DROITE -->
+        <div class="right-side">
+
+            <!-- EN-TÊTE -->
+            <div class="card-top">
+
+
+                <div class="official-block">
+                    <img src="<?php echo e(public_path('images/effets/logo-udo.png')); ?>" class="official-left-logo" alt="Université de Douala">
+
+                    <div class="official-text">
+                        <span class="country">REPUBLIQUE DU CAMEROUN</span>
+                        <br>
+                        <span class="motto">Paix - Travail - Patrie</span>
+                        <br>
+                        <span class="ministry">MINISTERE DE L'ENSEIGNEMENT SUPERIEUR</span>
+                        <br>
+                        <span class="university">UNIVERSITE DE DOUALA</span>
+                    </div>
+
+                    <img src="<?php echo e(public_path('images/effets/iba.png')); ?>" class="official-right-logo" alt="IBA">
+                </div>
+
+            </div>
+
+            <!-- CORPS -->
+            <div class="card-body">
+
+                <div class="avatar">
+                    <?php if($inscription->etudiant->photo): ?>
+                        <img src="<?php echo e(storage_path('app/public/' . $inscription->etudiant->photo)); ?>" alt="Photo étudiant">
+                    <?php else: ?>
+                        <div class="avatar-placeholder">👤</div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="info">
+                    <div class="info-row">
+                        <span class="lbl">MATRICULE:</span>
+                        <span class="val"><?php echo e($inscription->etudiant->matricule ?? '-'); ?></span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="lbl">NOMS & PRÉNOMS:</span>
+                        <span class="val"><?php echo e($inscription->etudiant->nom ?? '-'); ?> <?php echo e($inscription->etudiant->prenom ?? ''); ?></span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="lbl">NIVEAU & SPÉCIALITÉ:</span>
+                        <span class="val"><?php echo e($inscription->niveau->libelle ?? '-'); ?> - <?php echo e($inscription->specialite->libelle ?? '-'); ?></span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="lbl">DÉPARTEMENT:</span>
+                        <span class="val"><?php echo e($inscription->departement->libelle ?? '-'); ?></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- PIED -->
+            <div class="card-bottom">
+                <div class="validity">
+                    VALIDITÉ : <?php echo e(date('Y')); ?>-<?php echo e(date('Y') + 1); ?>
+
                 </div>
             </div>
 
-            <div class="right-side">
-                <div class="card-top">
-                    <!-- Drapeau à gauche -->
-                    <div class="flag">
-                        <div class="col green"></div>
-                        <div class="col red"><span class="star">★</span></div>
-                        <div class="col yellow"></div>
-                    </div>
-
-                    <!-- Logos entourant le texte -->
-                    <div class="official-block">
-                        <!-- Remplacez les chemins par vos images -->
-                        <img src="<?php echo e(asset('images/effets/logo-udo.png')); ?>" class="logo-img" alt="UD">
-                        <div>
-                            REPUBLIQUE DU CAMEROUN<br>
-                            <i>Paix - Travail - Patrie</i><br>
-                            MINISTERE DE L'ENSEIGNEMENT SUPERIEUR<br>
-                            <b>UNIVERSITE DE DOUALA</b>
-                        </div>
-                        <img src="<?php echo e(asset('images/effets/iba.ico')); ?>" class="logo-img" alt="IBA">
-                    </div>
-                </div>
-
-                <div class="card-body">
-                    <div class="avatar">
-                        <?php if($inscription->etudiant->photo): ?>
-                            <img src="<?php echo e(url('storage/' . $inscription->etudiant->photo)); ?>" alt="Photo">
-                        <?php else: ?>
-                            <i class="fas fa-user"></i>
-                        <?php endif; ?>
-                    </div>
-                    <div class="info">
-                        <div class="info-row">
-                            <span class="lbl">Matricule:</span>
-                            <span class="val"><?php echo e($inscription->etudiant->matricule); ?></span>
-                        </div>
-                        <div class="info-row">
-                            <span class="lbl">Noms & Prénoms:</span>
-                            <span class="val"><?php echo e($inscription->etudiant->nom); ?> <?php echo e($inscription->etudiant->prenom); ?></span>
-                        </div>
-                        <div class="info-row">
-                            <span class="lbl">Niveau & Spécialité:</span>
-                            <span class="val"><?php echo e($inscription->niveau->libelle ?? '-'); ?> - <?php echo e($inscription->specialite->libelle ?? '-'); ?></span>
-                        </div>
-                        <div class="info-row">
-                            <span class="lbl">Département:</span>
-                            <span class="val"><?php echo e($inscription->departement->libelle ?? '-'); ?></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-bottom">
-                    <div class="validity">Validité : <?php echo e(date('Y')); ?>-<?php echo e(date('Y')+1); ?></div>
-                </div>
-            </div>
         </div>
 
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
+</div>
+
 </body>
 </html><?php /**PATH D:\gestion-academique\resources\views/effets/cartes/carte-etudiant-pdf.blade.php ENDPATH**/ ?>

@@ -15,13 +15,15 @@
         <div class="grid sm:grid-cols-2 gap-4">
             <div>
                 <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Spécialité *</label>
-                <select id="specialite_select"
-                        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
-                    <option value="">Sélectionner une spécialité</option>
-                    @foreach($specialites as $specialite)
-                        <option value="{{ $specialite->id }}">{{ $specialite->libelle }}</option>
-                    @endforeach
-                </select>
+               <select id="specialite_select"
+                    class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+                <option value="">Sélectionner une spécialité</option>
+                @foreach($specialites as $specialite)
+                    <option value="{{ $specialite->id }}" {{ request('specialite_id') == $specialite->id ? 'selected' : '' }}>
+                        {{ $specialite->libelle }}
+                    </option>
+                @endforeach
+            </select>
             </div>
 
             <div>
@@ -84,15 +86,27 @@ document.addEventListener('DOMContentLoaded', function () {
     const table = document.getElementById('effectif_table');
     const tbody = document.getElementById('effectif_tbody');
 
+    const params = new URLSearchParams(window.location.search);
+    const initialSpecialiteId = params.get('specialite_id');
+    const initialNiveauId = params.get('niveau_id');
+
     specialiteSelect.addEventListener('change', function () {
         niveauSelect.disabled = true;
         niveauSelect.innerHTML = '<option value="">Sélectionner d\'abord une spécialité</option>';
         hidePanel();
         if (!this.value) return;
+        chargerNiveaux(this.value);
+    });
 
+    niveauSelect.addEventListener('change', function () {
+        if (!this.value) { hidePanel(); return; }
+        chargerEffectif(this.value);
+    });
+
+    function chargerNiveaux(specialiteId, preselectNiveauId = null) {
         niveauSelect.disabled = false;
         niveauSelect.innerHTML = '<option value="">Chargement...</option>';
-        fetch(`{{ route('effectifs.get-niveaux') }}?specialite_id=${this.value}`)
+        return fetch(`{{ route('effectifs.get-niveaux') }}?specialite_id=${specialiteId}`)
             .then(r => r.json())
             .then(data => {
                 if (!data.length) { niveauSelect.innerHTML = '<option value="">Aucun niveau pour cette spécialité</option>'; return; }
@@ -100,15 +114,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 data.forEach(n => {
                     const opt = document.createElement('option');
                     opt.value = n.id; opt.textContent = n.libelle;
+                    if (preselectNiveauId && n.id == preselectNiveauId) opt.selected = true;
                     niveauSelect.appendChild(opt);
                 });
             });
-    });
-
-    niveauSelect.addEventListener('change', function () {
-        if (!this.value) { hidePanel(); return; }
-        chargerEffectif(this.value);
-    });
+    }
 
     function hidePanel() {
         panel.classList.add('hidden');
@@ -124,11 +134,12 @@ document.addEventListener('DOMContentLoaded', function () {
         tableNoStudents.classList.add('hidden');
         tableLoading.classList.remove('hidden');
 
+        const specialiteId = specialiteSelect.value;
+
         fetch(`{{ route('effectifs.get-etudiants') }}?niveau_id=${niveauId}`)
             .then(r => r.json())
             .then(data => {
                 tableLoading.classList.add('hidden');
-                // Affichage du nombre d'étudiants dans l'en-tête
                 const nbEtudiants = data.etudiants.length;
                 const etudiantsTexte = nbEtudiants > 1 ? 'étudiants' : 'étudiant';
                 panelHeader.textContent = `Effectif : ${data.specialite} - ${data.niveau} - ${data.annee} (${nbEtudiants} ${etudiantsTexte})`;
@@ -138,6 +149,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
+                // Query string à propager pour que "Retour" ramène ici avec la même sélection
+                const retourQs = `specialite_id=${specialiteId}&niveau_id=${niveauId}`;
+
                 tbody.innerHTML = '';
                 data.etudiants.forEach(e => {
                     const tr = document.createElement('tr');
@@ -145,17 +159,17 @@ document.addEventListener('DOMContentLoaded', function () {
                         <td class="px-4 py-2.5 text-slate-500">${e.matricule}</td>
                         <td class="px-4 py-2.5 font-medium text-slate-700">${e.nom_complet}</td>
                         <td class="px-4 py-2.5 text-right whitespace-nowrap space-x-1">
-                            <a href="/cartes-etudiant/${e.inscription_id}"
+                            <a href="/cartes-etudiant/${e.inscription_id}?${retourQs}"
                                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-sky-100 text-sky-700 hover:bg-sky-200 text-xs font-semibold transition"
                                title="Générer la carte étudiant">
                                 <i class="fa-solid fa-id-card"></i> Carte
                             </a>
-                            <a href="/certificats-scolarite/${e.inscription_id}"
+                            <a href="/certificats-scolarite/${e.inscription_id}?${retourQs}"
                                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 text-xs font-semibold transition"
                                title="Générer le certificat de scolarité">
                                 <i class="fa-solid fa-file-lines"></i> Certificat
                             </a>
-                            <a href="/releves-notes/${e.inscription_id}"
+                            <a href="/releves-notes/${e.inscription_id}?${retourQs}"
                                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 text-xs font-semibold transition"
                                title="Générer le relevé de notes">
                                 <i class="fa-solid fa-table-list"></i> Relevé
@@ -171,6 +185,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 tableNoStudents.classList.remove('hidden');
                 tableNoStudents.querySelector('p').textContent = "Erreur lors du chargement de l'effectif.";
             });
+    }
+
+    // Restauration automatique de l'état depuis l'URL au chargement de la page
+    if (initialSpecialiteId) {
+        chargerNiveaux(initialSpecialiteId, initialNiveauId).then(() => {
+            if (initialNiveauId) {
+                chargerEffectif(initialNiveauId);
+            }
+        });
     }
 });
 </script>

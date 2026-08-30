@@ -18,12 +18,12 @@
         </div>
         <div class="relative">
             <form method="GET" action="<?php echo e(route('niveaux.index')); ?>" class="inline">
-                <select name="departement_id" onchange="this.form.submit()"
+                <select name="specialite_id" onchange="this.form.submit()"
                         class="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-200 outline-none transition">
-                    <option value="">Tous les départements</option>
-                    <?php $__currentLoopData = $departements; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $departement): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <option value="<?php echo e($departement->id); ?>" <?php echo e(request('departement_id') == $departement->id ? 'selected' : ''); ?>>
-                            <?php echo e($departement->libelle); ?>
+                    <option value="">Toutes les spécialités</option>
+                    <?php $__currentLoopData = $specialites; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $specialite): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($specialite->id); ?>" <?php echo e(request('specialite_id') == $specialite->id ? 'selected' : ''); ?>>
+                            <?php echo e($specialite->libelle); ?>
 
                         </option>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -33,10 +33,7 @@
     </div>
     <div class="flex gap-2 flex-wrap">
        
-        <button onclick="toast('Export Excel lancé', 'info')"
-                class="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm hover:bg-slate-50 transition">
-            <i class="fa-solid fa-file-excel text-green-600"></i> Excel
-        </button>
+       
         <a href="<?php echo e(route('niveaux.create')); ?>"
            class="px-4 py-2.5 grad-blue text-white rounded-xl text-sm font-semibold shadow hover:opacity-95 transition">
             <i class="fa-solid fa-plus mr-1"></i> Nouveau niveau

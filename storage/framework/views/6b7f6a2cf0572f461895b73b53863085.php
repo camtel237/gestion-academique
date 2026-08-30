@@ -232,8 +232,9 @@
             <a href="<?php echo e(route('cartes.download', $inscription->id)); ?>" class="btn btn-success">
                 <i class="fas fa-file-pdf"></i> Télécharger PDF
             </a>
-            <a href="<?php echo e(route('effectifs.index')); ?>" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Retour
+            <a href="<?php echo e(route('effectifs.index', ['specialite_id' => request('specialite_id'), 'niveau_id' => request('niveau_id')])); ?>"
+            class="px-4 py-2.5 border border-slate-200 rounded-xl text-sm hover:bg-slate-50 transition bg-white">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Retour
             </a>
         </div>
     </div>

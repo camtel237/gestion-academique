@@ -257,6 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Réinitialisation en cas de changement de département
     if (dept.value) dept.dispatchEvent(new Event('change'));
 });
+
 </script>
 @endpush
 @endsection

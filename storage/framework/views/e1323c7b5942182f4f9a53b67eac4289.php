@@ -11,8 +11,8 @@
 <?php $__env->startSection('content'); ?>
 <div class="max-w-3xl mx-auto">
     <div class="flex justify-end gap-2 mb-4">
-        <a href="<?php echo e(route('effectifs.index')); ?>"
-           class="px-4 py-2.5 border border-slate-200 rounded-xl text-sm hover:bg-slate-50 transition bg-white">
+       <a href="<?php echo e(route('effectifs.index', ['specialite_id' => request('specialite_id'), 'niveau_id' => request('niveau_id')])); ?>"
+        class="px-4 py-2.5 border border-slate-200 rounded-xl text-sm hover:bg-slate-50 transition bg-white">
             <i class="fa-solid fa-arrow-left mr-1"></i> Retour
         </a>
         <a href="<?php echo e(route('certificats.download', $inscription->id)); ?>"

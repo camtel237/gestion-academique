@@ -6,7 +6,7 @@
 ?>
 
 <?php $__env->startSection('content'); ?>
-<div class="max-w-2xl mx-auto">
+<div class="max-w-4xl mx-auto">
     <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
         <?php if($errors->any()): ?>
             <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
@@ -28,28 +28,32 @@
             <?php echo csrf_field(); ?>
             <?php echo method_field('PUT'); ?>
 
-             <div>
-    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Année académique *</label>
-    <select id="annee_select" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition" required>
-        <option value="">Sélectionner une année</option>
-        <?php $__currentLoopData = $anneesAcademiques; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $annee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-            <option value="<?php echo e($annee->id); ?>" <?php echo e($ue->semestre->annee_academique_id == $annee->id ? 'selected' : ''); ?>><?php echo e($annee->libelle); ?></option>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-    </select>
-</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Année académique *</label>
+                    <select id="annee_select" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition" required>
+                        <option value="">Sélectionner une année</option>
+                        <?php $__currentLoopData = $anneesAcademiques; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $annee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($annee->id); ?>" <?php echo e($ue->semestre->annee_academique_id == $annee->id ? 'selected' : ''); ?>><?php echo e($annee->libelle); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </select>
+                </div>
 
-<div>
-    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Niveau *</label>
-    <select id="niveau_select" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition" required>
-        <?php $__currentLoopData = $niveaux; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $niveau): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-            <option value="<?php echo e($niveau->id); ?>" <?php echo e($ue->semestre->niveau_id == $niveau->id ? 'selected' : ''); ?>><?php echo e($niveau->display_full); ?></option>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-    </select>
-</div>
+                
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Niveau *</label>
+                    <select id="niveau_select" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition" required>
+                        <?php $__currentLoopData = $niveaux; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $niveau): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($niveau->id); ?>" <?php echo e($ue->semestre->niveau_id == $niveau->id ? 'selected' : ''); ?>><?php echo e($niveau->display_full); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </select>
+                </div>
 
-<div>
-    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Semestre *</label>
-    <select name="semestre_id" id="semestre_select" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition <?php $__errorArgs = ['semestre_id'];
+                
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Semestre *</label>
+                    <select name="semestre_id" id="semestre_select" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition <?php $__errorArgs = ['semestre_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -57,11 +61,11 @@ $message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($messag
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" required>
-        <?php $__currentLoopData = $semestres; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $semestre): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-            <option value="<?php echo e($semestre->id); ?>" <?php echo e(old('semestre_id', $ue->semestre_id) == $semestre->id ? 'selected' : ''); ?>><?php echo e($semestre->libelle); ?></option>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-    </select>
-    <?php $__errorArgs = ['semestre_id'];
+                        <?php $__currentLoopData = $semestres; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $semestre): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($semestre->id); ?>" <?php echo e(old('semestre_id', $ue->semestre_id) == $semestre->id ? 'selected' : ''); ?>><?php echo e($semestre->libelle); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </select>
+                    <?php $__errorArgs = ['semestre_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -69,14 +73,14 @@ $message = $__bag->first($__errorArgs[0]); ?> <p class="text-xs text-red-500 mt-
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-</div>
+                </div>
 
-<div>
-    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Code</label>
-    <input type="text" value="<?php echo e($ue->code); ?>" disabled class="w-full px-3 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 cursor-not-allowed">
-</div>
+                
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Code</label>
+                    <input type="text" value="<?php echo e($ue->code); ?>" disabled class="w-full px-3 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 cursor-not-allowed">
+                </div>
 
-            <div class="grid sm:grid-cols-2 gap-3">
                 
                 <div>
                     <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Total crédits *</label>
@@ -101,12 +105,12 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                 </div>
-            </div>
 
-            <div>
-                <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Libellé *</label>
-                <input type="text" name="libelle" value="<?php echo e(old('libelle', $ue->libelle)); ?>"
-                       class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition <?php $__errorArgs = ['libelle'];
+                
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Position sur le relevé</label>
+                    <input type="number" name="position_releve" value="<?php echo e(old('position_releve', $ue->position_releve)); ?>"
+                           class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition <?php $__errorArgs = ['position_releve'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -114,23 +118,24 @@ $message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($messag
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>"
-                       placeholder="Ex: Programmation Web" required>
-                <?php $__errorArgs = ['libelle'];
+                           placeholder="Ex: 1" min="1">
+                    <?php $__errorArgs = ['position_releve'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                    <p class="text-xs text-red-500 mt-1"><?php echo e($message); ?></p>
-                <?php unset($message);
+                        <p class="text-xs text-red-500 mt-1"><?php echo e($message); ?></p>
+                    <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-            </div>
+                </div>
 
-            <div>
-                <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Position sur le relevé</label>
-                <input type="number" name="position_releve" value="<?php echo e(old('position_releve', $ue->position_releve)); ?>"
-                       class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition <?php $__errorArgs = ['position_releve'];
+                
+                <div class="md:col-span-2">
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Libellé *</label>
+                    <input type="text" name="libelle" value="<?php echo e(old('libelle', $ue->libelle)); ?>"
+                           class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition <?php $__errorArgs = ['libelle'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -138,17 +143,18 @@ $message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($messag
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>"
-                       placeholder="Ex: 1" min="1">
-                <?php $__errorArgs = ['position_releve'];
+                           placeholder="Ex: Programmation Web" required>
+                    <?php $__errorArgs = ['libelle'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                    <p class="text-xs text-red-500 mt-1"><?php echo e($message); ?></p>
-                <?php unset($message);
+                        <p class="text-xs text-red-500 mt-1"><?php echo e($message); ?></p>
+                    <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
+                </div>
             </div>
 
             <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">

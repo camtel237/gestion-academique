@@ -65,8 +65,5 @@ class Note extends Model
         return 'Insuffisant';
     }
 
-    public function getEstValideAttribute()
-    {
-        return $this->moyenne >= 10;
-    }
+
 }

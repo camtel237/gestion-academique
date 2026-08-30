@@ -52,11 +52,7 @@ class CarteEtudiantController extends Controller
 public function download($id)
 {
     $inscription = Inscription::with([
-        'etudiant',
-        'anneeAcademique',
-        'departement',
-        'specialite',
-        'niveau'
+        'etudiant', 'anneeAcademique', 'departement', 'specialite', 'niveau'
     ])->findOrFail($id);
 
     if ($inscription->statut !== 'validee') {
@@ -64,9 +60,11 @@ public function download($id)
             ->with('error', 'Cette inscription n\'est pas validée.');
     }
 
-    // ✅ Utiliser la vue PDF sans boutons
     $pdf = Pdf::loadView('effets.cartes.carte-etudiant-pdf', compact('inscription'));
-    $pdf->setPaper('a4', 'portrait');
+
+    // Format personnalisé en points (pt), pas A4 : largeur x hauteur
+    // 383 x 216 pt ≈ 135 x 76 mm, calé sur la taille réelle de la carte (450x230px + marge)
+    $pdf->setPaper([0, 0, 383, 216]);
 
     return $pdf->download('carte_etudiant_' . $inscription->etudiant->matricule . '.pdf');
 }

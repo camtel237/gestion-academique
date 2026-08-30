@@ -6,57 +6,46 @@
 ?>
 
 <?php $__env->startSection('content'); ?>
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-    <div class="flex flex-wrap gap-2 flex-1">
-        <div class="relative max-w-sm flex-1 min-w-[200px]">
-            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <form method="GET" action="<?php echo e(route('matieres.index')); ?>" class="inline">
+<form method="GET" action="<?php echo e(route('matieres.index')); ?>" id="matieresFilterForm">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+        <div class="flex flex-wrap gap-2 flex-1">
+            <div class="relative max-w-sm flex-1 min-w-[200px]">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                 <input type="text" name="search" placeholder="Rechercher une matière..."
                        value="<?php echo e(request('search')); ?>"
                        class="w-full pl-10 pr-3 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-200 outline-none transition"/>
-            </form>
-        </div>
-        <div class="relative">
-            <form method="GET" action="<?php echo e(route('matieres.index')); ?>" class="inline">
-                <select name="unite_enseignement_id" onchange="this.form.submit()"
-                        class="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-200 outline-none transition">
-                    <option value="">Toutes les UE</option>
-                    <?php $__currentLoopData = $ues; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ue): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <option value="<?php echo e($ue->id); ?>" <?php echo e(request('unite_enseignement_id') == $ue->id ? 'selected' : ''); ?>>
-                            <?php echo e($ue->libelle); ?>
+            </div>
 
-                        </option>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                </select>
-            </form>
-        </div>
-        <div class="relative">
-            <form method="GET" action="<?php echo e(route('matieres.index')); ?>" class="inline">
-                <select name="semestre_id" onchange="this.form.submit()"
-                        class="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-200 outline-none transition">
-                    <option value="">Tous les semestres</option>
-                    <?php $__currentLoopData = $semestres; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $semestre): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <option value="<?php echo e($semestre->id); ?>" <?php echo e(request('semestre_id') == $semestre->id ? 'selected' : ''); ?>>
-                            <?php echo e($semestre->libelle); ?>
+            <select name="specialite_id" onchange="this.form.submit()"
+                    class="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-200 outline-none transition">
+                <option value="">Toutes les spécialités</option>
+                <?php $__currentLoopData = $specialites; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $specialite): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($specialite->id); ?>" <?php echo e(request('specialite_id') == $specialite->id ? 'selected' : ''); ?>>
+                        <?php echo e($specialite->libelle); ?>
 
-                        </option>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                </select>
-            </form>
+                    </option>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </select>
+
+            <select name="semestre_id" onchange="this.form.submit()"
+                    class="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-200 outline-none transition"
+                    <?php echo e($semestres->isEmpty() ? 'disabled' : ''); ?>>
+                <option value=""><?php echo e($semestres->isEmpty() ? "Choisir une spécialité d'abord" : 'Tous les niveaux'); ?></option>
+                <?php $__currentLoopData = $semestres; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $semestre): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($semestre->id); ?>" <?php echo e(request('semestre_id') == $semestre->id ? 'selected' : ''); ?>>
+                        <?php echo e($semestre->niveau->libelle ?? '-'); ?> (<?php echo e($semestre->libelle); ?>)
+                    </option>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </select>
+        </div>
+        <div class="flex gap-2 flex-wrap">
+            <a href="<?php echo e(route('matieres.create')); ?>"
+               class="px-4 py-2.5 grad-blue text-white rounded-xl text-sm font-semibold shadow hover:opacity-95 transition">
+                <i class="fa-solid fa-plus mr-1"></i> Nouvelle matière
+            </a>
         </div>
     </div>
-    <div class="flex gap-2 flex-wrap">
-        <button onclick="toast('Export Excel lancé', 'info')"
-                class="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm hover:bg-slate-50 transition">
-            <i class="fa-solid fa-file-excel text-green-600"></i> Excel
-        </button>
-        <a href="<?php echo e(route('matieres.create')); ?>"
-           class="px-4 py-2.5 grad-blue text-white rounded-xl text-sm font-semibold shadow hover:opacity-95 transition">
-            <i class="fa-solid fa-plus mr-1"></i> Nouvelle matière
-        </a>
-    </div>
-</div>
-
+</form>
 
 <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden">
     <div class="overflow-x-auto scrollbar-thin">

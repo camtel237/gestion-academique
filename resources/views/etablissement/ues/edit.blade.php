@@ -9,7 +9,7 @@
 @endphp
 
 @section('content')
-<div class="max-w-2xl mx-auto">
+<div class="max-w-4xl mx-auto">
     <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
         @if($errors->any())
             <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
@@ -31,42 +31,46 @@
             @csrf
             @method('PUT')
 
-             <div>
-    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Année académique *</label>
-    <select id="annee_select" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition" required>
-        <option value="">Sélectionner une année</option>
-        @foreach($anneesAcademiques as $annee)
-            <option value="{{ $annee->id }}" {{ $ue->semestre->annee_academique_id == $annee->id ? 'selected' : '' }}>{{ $annee->libelle }}</option>
-        @endforeach
-    </select>
-</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {{-- Année académique --}}
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Année académique *</label>
+                    <select id="annee_select" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition" required>
+                        <option value="">Sélectionner une année</option>
+                        @foreach($anneesAcademiques as $annee)
+                            <option value="{{ $annee->id }}" {{ $ue->semestre->annee_academique_id == $annee->id ? 'selected' : '' }}>{{ $annee->libelle }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-<div>
-    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Niveau *</label>
-    <select id="niveau_select" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition" required>
-        @foreach($niveaux as $niveau)
-            <option value="{{ $niveau->id }}" {{ $ue->semestre->niveau_id == $niveau->id ? 'selected' : '' }}>{{ $niveau->display_full }}</option>
-        @endforeach
-    </select>
-</div>
+                {{-- Niveau --}}
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Niveau *</label>
+                    <select id="niveau_select" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition" required>
+                        @foreach($niveaux as $niveau)
+                            <option value="{{ $niveau->id }}" {{ $ue->semestre->niveau_id == $niveau->id ? 'selected' : '' }}>{{ $niveau->display_full }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-<div>
-    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Semestre *</label>
-    <select name="semestre_id" id="semestre_select" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition @error('semestre_id') border-red-500 @enderror" required>
-        @foreach($semestres as $semestre)
-            <option value="{{ $semestre->id }}" {{ old('semestre_id', $ue->semestre_id) == $semestre->id ? 'selected' : '' }}>{{ $semestre->libelle }}</option>
-        @endforeach
-    </select>
-    @error('semestre_id') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-</div>
+                {{-- Semestre --}}
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Semestre *</label>
+                    <select name="semestre_id" id="semestre_select" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition @error('semestre_id') border-red-500 @enderror" required>
+                        @foreach($semestres as $semestre)
+                            <option value="{{ $semestre->id }}" {{ old('semestre_id', $ue->semestre_id) == $semestre->id ? 'selected' : '' }}>{{ $semestre->libelle }}</option>
+                        @endforeach
+                    </select>
+                    @error('semestre_id') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                </div>
 
-<div>
-    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Code</label>
-    <input type="text" value="{{ $ue->code }}" disabled class="w-full px-3 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 cursor-not-allowed">
-</div>
+                {{-- Code --}}
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Code</label>
+                    <input type="text" value="{{ $ue->code }}" disabled class="w-full px-3 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 cursor-not-allowed">
+                </div>
 
-            <div class="grid sm:grid-cols-2 gap-3">
-                
+                {{-- Total crédits --}}
                 <div>
                     <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Total crédits *</label>
                     <input type="number" name="total_credit" value="{{ old('total_credit', $ue->total_credit) }}"
@@ -76,26 +80,28 @@
                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                     @enderror
                 </div>
-            </div>
 
-            <div>
-                <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Libellé *</label>
-                <input type="text" name="libelle" value="{{ old('libelle', $ue->libelle) }}"
-                       class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition @error('libelle') border-red-500 @enderror"
-                       placeholder="Ex: Programmation Web" required>
-                @error('libelle')
-                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+                {{-- Position sur le relevé --}}
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Position sur le relevé</label>
+                    <input type="number" name="position_releve" value="{{ old('position_releve', $ue->position_releve) }}"
+                           class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition @error('position_releve') border-red-500 @enderror"
+                           placeholder="Ex: 1" min="1">
+                    @error('position_releve')
+                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
 
-            <div>
-                <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Position sur le relevé</label>
-                <input type="number" name="position_releve" value="{{ old('position_releve', $ue->position_releve) }}"
-                       class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition @error('position_releve') border-red-500 @enderror"
-                       placeholder="Ex: 1" min="1">
-                @error('position_releve')
-                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                @enderror
+                {{-- Libellé (Prend toute la largeur en bas) --}}
+                <div class="md:col-span-2">
+                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Libellé *</label>
+                    <input type="text" name="libelle" value="{{ old('libelle', $ue->libelle) }}"
+                           class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition @error('libelle') border-red-500 @enderror"
+                           placeholder="Ex: Programmation Web" required>
+                    @error('libelle')
+                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">

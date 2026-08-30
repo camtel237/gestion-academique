@@ -18,7 +18,7 @@ class StoreAnneeAcademiqueRequest extends FormRequest
             'libelle' => ['required', 'string', 'max:20', 'unique:annees_academiques,libelle'],
             'date_debut' => ['required', 'date'],
             'date_fin' => ['required', 'date', 'after:date_debut'],
-            'note_validation' => ['nullable', 'numeric', 'between:0,20'],
+            'note_validation' => ['required', 'numeric', 'between:0,20'],
             'description' => ['nullable', 'string'],
         ];
     }
@@ -31,6 +31,8 @@ class StoreAnneeAcademiqueRequest extends FormRequest
             'date_debut.required' => 'La date de début est obligatoire.',
             'date_fin.required' => 'La date de fin est obligatoire.',
             'date_fin.after' => 'La date de fin doit être après la date de début.',
+            'note_validation.required' => 'La note de validation est obligatoire.',
+            'note_validation.numeric' => 'La note de validation doit être un nombre.',
             'note_validation.between' => 'La note de validation doit être comprise entre 0 et 20.',
         ];
     }

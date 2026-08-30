@@ -13,47 +13,53 @@ use App\Models\Etablissement\Personnel;
 use App\Models\Etablissement\Semestre;
 use App\Models\Etablissement\UniteEnseignement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class MatiereController extends Controller
 {
     public function index(Request $request)
-    {
-        $query = Matiere::with(['departement', 'uniteEnseignement', 'semestre', 'niveau', 'personnel']);
+{
+    $query = Matiere::with(['departement', 'uniteEnseignement', 'semestre.niveau', 'niveau', 'personnel']);
 
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('code', 'like', "%{$search}%")
-                  ->orWhere('libelle', 'like', "%{$search}%");
-            });
-        }
-
-        if ($request->filled('unite_enseignement_id')) {
-            $query->where('unite_enseignement_id', $request->unite_enseignement_id);
-        }
-
-        if ($request->filled('semestre_id')) {
-            $query->where('semestre_id', $request->semestre_id);
-        }
-
-        if ($request->filled('niveau_id')) {
-            $query->where('niveau_id', $request->niveau_id);
-        }
-
-        $matieres = $query->orderBy('code')->paginate(10);
-
-        $ues = UniteEnseignement::with('semestre.niveau')->orderBy('libelle')->get();
-        $semestres = Semestre::with('anneeAcademique')->orderBy('libelle')->get();
-        $niveaux = Niveau::with('specialite')
-            ->orderBy('libelle')
-            ->get()
-            ->map(function ($niveau) {
-                $niveau->display_name = $niveau->libelle . ' (' . ($niveau->specialite->libelle ?? 'Sans spécialité') . ')';
-                return $niveau;
-            });
-
-        return view('etablissement.matieres.index', compact('matieres', 'ues', 'semestres', 'niveaux'));
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('code', 'like', "%{$search}%")
+              ->orWhere('libelle', 'like', "%{$search}%");
+        });
     }
+
+    // ✅ Filtre par spécialité (via le niveau de la matière)
+    if ($request->filled('specialite_id')) {
+        $query->whereHas('niveau', function ($q) use ($request) {
+            $q->where('specialite_id', $request->specialite_id);
+        });
+    }
+
+    // ✅ "Niveau" du filtre = en réalité un semestre précis (le libellé affiché
+    // combine niveau + semestre, ex: "L1 (S1)"), donc on filtre sur semestre_id
+    if ($request->filled('semestre_id')) {
+        $query->where('semestre_id', $request->semestre_id);
+    }
+
+    $matieres = $query->orderBy('code')->paginate(10)->withQueryString();
+
+    $specialites = \App\Models\Etablissement\Specialite::where('est_actif', true)
+        ->orderBy('libelle')
+        ->get();
+
+    $semestres = collect();
+    if ($request->filled('specialite_id')) {
+        $semestres = Semestre::whereHas('niveau', function ($q) use ($request) {
+                $q->where('specialite_id', $request->specialite_id);
+            })
+            ->with('niveau')
+            ->orderBy('libelle')
+            ->get();
+    }
+
+    return view('etablissement.matieres.index', compact('matieres', 'specialites', 'semestres'));
+}
 
     public function create(Request $request)
     {
@@ -163,55 +169,101 @@ class MatiereController extends Controller
     /**
      * Niveaux d'un département
      */
-    public function getNiveauxByDepartement(Request $request)
-    {
-        $request->validate(['departement_id' => ['required', 'exists:departements,id']]);
+public function getNiveauxByDepartement(Request $request)
+{
+    try {
+        $request->validate([
+            'departement_id' => ['nullable', 'integer', 'exists:departements,id'],
+        ]);
 
-        $niveaux = Niveau::where('departement_id', $request->departement_id)
+        $departementId = $request->input('departement_id');
+
+        if (!$departementId) {
+            return response()->json([]);
+        }
+
+        $niveaux = Niveau::where('departement_id', $departementId)
             ->where('est_actif', true)
             ->with('specialite')
             ->orderBy('libelle')
             ->get()
             ->map(fn($niveau) => [
-                'id'             => $niveau->id,
-                'libelle'        => $niveau->libelle,
-                'display_name'   => $niveau->libelle . ' (' . ($niveau->specialite->libelle ?? 'Sans spécialité') . ')',
-                'specialite_id'  => $niveau->specialite_id,
+                'id' => $niveau->id,
+                'libelle' => $niveau->libelle,
+                'display_name' => $niveau->libelle . ' (' . ($niveau->specialite?->libelle ?? 'Sans spécialité') . ')',
+                'specialite_id' => $niveau->specialite_id,
                 'annee_academique_id' => $niveau->annee_academique_id,
             ]);
 
         return response()->json($niveaux);
+    } catch (\Throwable $e) {
+        Log::error('Erreur getNiveauxByDepartement', ['exception' => $e]);
+
+        return response()->json([
+            'message' => 'Erreur lors du chargement des niveaux',
+        ], 500);
     }
+}
+
 /**
- * Récupère les semestres d'un niveau via les UE
+ * Récupère les semestres d'un niveau
  */
 public function getSemestresByNiveau(Request $request)
 {
-    $request->validate(['niveau_id' => ['required', 'exists:niveaux,id']]);
+    try {
+        $request->validate([
+            'niveau_id' => ['nullable', 'integer', 'exists:niveaux,id'],
+        ]);
 
-    // Le semestre est rattaché directement au niveau (semestres.niveau_id)
-    $semestres = Semestre::where('niveau_id', $request->niveau_id)
-        ->orderBy('libelle')
-        ->get(['id', 'libelle']);
+        $niveauId = $request->input('niveau_id');
 
-    return response()->json($semestres);
+        if (!$niveauId) {
+            return response()->json([]);
+        }
+
+        $semestres = Semestre::where('niveau_id', $niveauId)
+            ->orderBy('libelle')
+            ->get(['id', 'libelle']);
+
+        return response()->json($semestres);
+    } catch (\Throwable $e) {
+        Log::error('Erreur getSemestresByNiveau', ['exception' => $e]);
+
+        return response()->json([
+            'message' => 'Erreur lors du chargement des semestres',
+        ], 500);
+    }
 }
 
-    /**
-     * UE du niveau choisi (via les semestres de ce niveau, l'UE n'a plus de niveau_id direct)
-     */
- public function getUesByNiveau(Request $request)
+/**
+ * UE du niveau choisi
+ */
+public function getUesByNiveau(Request $request)
 {
-    $request->validate([
-        'niveau_id' => ['required', 'exists:niveaux,id'],
-        'semestre_id' => ['required', 'exists:semestres,id']
-    ]);
+    try {
+        $request->validate([
+            'niveau_id' => ['nullable', 'integer', 'exists:niveaux,id'],
+            'semestre_id' => ['nullable', 'integer', 'exists:semestres,id'],
+        ]);
 
-    // Récupérer uniquement les UE du semestre spécifié
-    $ues = UniteEnseignement::where('semestre_id', $request->semestre_id)
-        ->orderBy('libelle')
-        ->get(['id', 'libelle', 'total_credit']);
+        $semestreId = $request->input('semestre_id');
 
-    return response()->json($ues);
+        if (!$semestreId) {
+            return response()->json([]);
+        }
+
+        $ues = UniteEnseignement::where('semestre_id', $semestreId)
+            ->orderBy('libelle')
+            ->get(['id', 'libelle', 'total_credit']);
+
+        return response()->json($ues);
+    } catch (\Throwable $e) {
+        Log::error('Erreur getUesByNiveau', ['exception' => $e]);
+
+        return response()->json([
+            'message' => 'Erreur lors du chargement des UE',
+        ], 500);
+    }
 }
+
 }

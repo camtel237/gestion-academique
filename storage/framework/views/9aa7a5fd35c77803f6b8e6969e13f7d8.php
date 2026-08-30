@@ -40,10 +40,7 @@
             </select>
         </div>
         <div class="flex gap-2 flex-wrap">
-            <button type="button" onclick="toast('Export Excel lancé', 'info')"
-                    class="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm hover:bg-slate-50 transition">
-                <i class="fa-solid fa-file-excel text-green-600"></i> Excel
-            </button>
+            
             <a href="<?php echo e(route('inscriptions.create')); ?>"
                class="px-4 py-2.5 grad-blue text-white rounded-xl text-sm font-semibold shadow hover:opacity-95 transition">
                 <i class="fa-solid fa-plus mr-1"></i> Nouvelle inscription

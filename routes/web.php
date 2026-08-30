@@ -20,7 +20,7 @@ use App\Http\Controllers\EffetsAcademiques\CarteEtudiantController;
 use App\Http\Controllers\EffetsAcademiques\CertificatController;
 use App\Http\Controllers\EffetsAcademiques\ReleveController;
 use App\Http\Controllers\EffetsAcademiques\EffectifController;
-
+use App\Http\Controllers\Administration\SettingController;
 
 
 
@@ -111,9 +111,8 @@ Route::middleware(['auth'])->group(function () {
             return view('administration.users');
         })->name('users.index');
 
-        Route::get('/settings', function () {
-            return view('administration.settings');
-        })->name('settings.index');
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
     });
      // Route::resource('diplomes', DiplomeController::class);
      // Route::patch('diplomes/{diplome}/toggle-status', [DiplomeController::class, 'toggleStatus'])->name('diplomes.toggle-status');  
@@ -122,7 +121,7 @@ Route::middleware(['auth'])->group(function () {
     // ============================================
     Route::resource('etudiants', EtudiantController::class);
     Route::get('etudiants-export', [EtudiantController::class, 'export'])->name('etudiants.export');
-Route::post('etudiants-import', [EtudiantController::class, 'import'])->name('etudiants.import');
+    Route::post('etudiants-import', [EtudiantController::class, 'import'])->name('etudiants.import');
     Route::patch('etudiants/{etudiant}/toggle-status', [EtudiantController::class, 'toggleStatus'])->name('etudiants.toggle-status');
 
     // ============================================
@@ -141,7 +140,7 @@ Route::post('etudiants-import', [EtudiantController::class, 'import'])->name('et
     // Notes - Routes AJAX pour la cascade
     Route::get('get-specialites-by-annee', [NoteController::class, 'getSpecialitesByAnnee'])->name('get.specialites.by.annee');
     Route::get('get-niveaux-by-specialite', [NoteController::class, 'getNiveauxBySpecialite'])->name('get.niveaux.by.specialite');
-    Route::get('get-semestres-by-niveau', [NoteController::class, 'getSemestresByNiveau'])->name('get.semestres.by.niveau');
+    Route::get('get-semestres-by-niveau-note', [NoteController::class, 'getSemestresByNiveau'])->name('get.semestres.by.niveau.note');
     Route::get('get-semestres-by-specialite', [NoteController::class, 'getSemestresBySpecialite'])->name('get.semestres.by.specialite');
     Route::get('get-matieres-by-semestre', [NoteController::class, 'getMatieresBySemestre'])->name('get.matieres.by.semestre');
     Route::get('get-etudiants-by-matiere', [NoteController::class, 'getEtudiantsByMatiere'])->name('get.etudiants.by.matiere');
