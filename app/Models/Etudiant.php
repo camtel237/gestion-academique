@@ -33,9 +33,9 @@ class Etudiant extends Model
     ];
 
     public function inscriptions()
-    {
-        return $this->hasMany(Inscription::class);
-    }// a modifie tobelong 
+{
+    return $this->hasMany(Inscription::class, 'etudiant_id'); // ou le vrai nom de colonne
+}
 
     public function getNomCompletAttribute()
     {

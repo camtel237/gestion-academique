@@ -17,7 +17,7 @@ class DashboardController extends Controller
     {
         $anneeActive = AnneeAcademique::where('est_active', true)->first();
 
-            $stats = [
+        $stats = [
             'etudiants'     => $anneeActive
                 ? Inscription::where('annee_academique_id', $anneeActive->id)->where('statut', 'validee')->count()
                 : 0,
@@ -29,7 +29,18 @@ class DashboardController extends Controller
         $activites = $this->dernieresActivites();
         $inscriptionsParMois = $this->inscriptionsParMois($anneeActive);
 
-        return view('dashboard.index', compact('stats', 'activites', 'inscriptionsParMois', 'anneeActive'));
+        // Nouveaux graphiques
+        $etudiantsParDepartement   = $this->etudiantsParDepartement($anneeActive);
+        $tauxReussiteParDepartement = $this->tauxReussiteParDepartement($anneeActive);
+        $evolutionTauxReussite     = $this->evolutionTauxReussite();
+        $repartitionParPays        = $this->repartitionParPays($anneeActive);
+        $repartitionParSexe        = $this->repartitionParSexe($anneeActive);
+
+        return view('dashboard.index', compact(
+            'stats', 'activites', 'inscriptionsParMois', 'anneeActive',
+            'etudiantsParDepartement', 'tauxReussiteParDepartement',
+            'evolutionTauxReussite', 'repartitionParPays', 'repartitionParSexe'
+        ));
     }
 
     private function tauxReussite(?AnneeAcademique $annee): int
@@ -87,5 +98,111 @@ class DashboardController extends Controller
             ->map(fn($m) => $parMois[$m] ?? 0)
             ->values()
             ->toArray();
+    }
+
+    /**
+     * Nombre d'étudiants (inscriptions validées de l'année active) par département.
+     */
+    private function etudiantsParDepartement(?AnneeAcademique $annee): array
+    {
+        if (!$annee) {
+            return ['labels' => [], 'data' => []];
+        }
+
+        $rows = Inscription::where('inscriptions.annee_academique_id', $annee->id)
+            ->where('inscriptions.statut', 'validee')
+            ->join('departements', 'inscriptions.departement_id', '=', 'departements.id')
+            ->selectRaw('departements.libelle as departement, COUNT(*) as total')
+            ->groupBy('departements.id', 'departements.libelle')
+            ->orderByDesc('total')
+            ->get();
+
+        return [
+            'labels' => $rows->pluck('departement')->toArray(),
+            'data'   => $rows->pluck('total')->toArray(),
+        ];
+    }
+
+    /**
+     * Taux de réussite (%) par département, sur l'année active.
+     */
+    private function tauxReussiteParDepartement(?AnneeAcademique $annee): array
+    {
+        if (!$annee) {
+            return ['labels' => [], 'data' => []];
+        }
+
+        $rows = Note::join('inscriptions', 'notes.inscription_id', '=', 'inscriptions.id')
+            ->join('departements', 'inscriptions.departement_id', '=', 'departements.id')
+            ->where('inscriptions.annee_academique_id', $annee->id)
+            ->selectRaw('departements.libelle as departement, COUNT(*) as total, SUM(CASE WHEN notes.moyenne >= 10 THEN 1 ELSE 0 END) as reussies')
+            ->groupBy('departements.id', 'departements.libelle')
+            ->get();
+
+        return [
+            'labels' => $rows->pluck('departement')->toArray(),
+            'data'   => $rows->map(fn($r) => $r->total > 0 ? (int) round($r->reussies / $r->total * 100) : 0)->toArray(),
+        ];
+    }
+
+    /**
+     * Évolution du taux de réussite global, toutes années académiques confondues,
+     * triées chronologiquement.
+     */
+    private function evolutionTauxReussite(): array
+    {
+        $annees = AnneeAcademique::orderBy('date_debut')->get();
+
+        return [
+            'labels' => $annees->pluck('libelle')->toArray(),
+            'data'   => $annees->map(fn($a) => $this->tauxReussite($a))->toArray(),
+        ];
+    }
+
+    /**
+     * Répartition des inscriptions validées de l'année active, par pays de l'étudiant.
+     */
+    private function repartitionParPays(?AnneeAcademique $annee): array
+    {
+        if (!$annee) {
+            return ['labels' => [], 'data' => []];
+        }
+
+        $rows = Inscription::where('inscriptions.annee_academique_id', $annee->id)
+            ->where('inscriptions.statut', 'validee')
+            ->join('etudiants', 'inscriptions.etudiant_id', '=', 'etudiants.id')
+            ->selectRaw("COALESCE(NULLIF(etudiants.pays, ''), 'Non renseigné') as pays, COUNT(*) as total")
+            ->groupBy('pays')
+            ->orderByDesc('total')
+            ->get();
+
+        return [
+            'labels' => $rows->pluck('pays')->toArray(),
+            'data'   => $rows->pluck('total')->toArray(),
+        ];
+    }
+
+    /**
+     * Répartition des inscriptions validées de l'année active, par sexe de l'étudiant.
+     */
+    private function repartitionParSexe(?AnneeAcademique $annee): array
+    {
+        if (!$annee) {
+            return ['labels' => ['Masculin', 'Féminin'], 'data' => [0, 0]];
+        }
+
+        $rows = Inscription::where('inscriptions.annee_academique_id', $annee->id)
+            ->where('inscriptions.statut', 'validee')
+            ->join('etudiants', 'inscriptions.etudiant_id', '=', 'etudiants.id')
+            ->selectRaw("etudiants.sexe as sexe, COUNT(*) as total")
+            ->groupBy('etudiants.sexe')
+            ->get();
+
+        $labels = ['M' => 'Masculin', 'F' => 'Féminin'];
+
+        return [
+            'labels' => $rows->map(fn($r) => $labels[$r->sexe] ?? ($r->sexe ?? 'Non renseigné'))->toArray(),
+            'data'   => $rows->pluck('total')->toArray(),
+        ];
     }
 }

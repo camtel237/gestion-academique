@@ -1,1 +1,0 @@
-<?php /**PATH C:\Users\horta-christ\Downloads\Nouveau dossier (3)\gestion-academique\resources\views/etudiants/show.blade.php ENDPATH**/ ?>

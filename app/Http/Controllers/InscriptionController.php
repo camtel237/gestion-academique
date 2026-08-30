@@ -89,35 +89,33 @@ class InscriptionController extends Controller
     }
 
     /**
-     * Enregistrer une nouvelle inscription
+     * Enregistrement d'une nouvelle inscription
      */
     public function store(StoreInscriptionRequest $request)
-    {
-        $data = $request->validated();
-        
-        // Vérifier si l'étudiant est déjà inscrit pour cette année et ce niveau
-        $existingInscription = Inscription::where('etudiant_id', $data['etudiant_id'])
-            ->where('annee_academique_id', $data['annee_academique_id'])
-            ->where('niveau_id', $data['niveau_id'])
-            ->whereIn('statut', ['en_attente', 'validee'])
-            ->first();
+{
+    $data = $request->validated();
 
-        if ($existingInscription) {
-            return back()
-                ->withInput()
-                ->withErrors(['etudiant_id' => 'Cet étudiant est déjà inscrit pour cette année et ce niveau.']);
-        }
+    // Un étudiant ne peut avoir qu'une seule inscription active à la fois
+    // (en_attente ou validée), peu importe l'année ou le niveau.
+    // Une inscription annulée ne compte pas et libère l'étudiant.
+    $existingInscription = Inscription::where('etudiant_id', $data['etudiant_id'])
+        ->whereIn('statut', ['en_attente', 'validee'])
+        ->first();
 
-        // Ajouter la date d'inscription
-        $data['date_inscription'] = now();
-
-        // Créer l'inscription
-        Inscription::create($data);
-
-        return redirect()
-            ->route('inscriptions.index')
-            ->with('success', 'Inscription enregistrée avec succès.');
+    if ($existingInscription) {
+        return back()
+            ->withInput()
+            ->withErrors(['etudiant_id' => 'Cet étudiant possède déjà une inscription active (' . $existingInscription->specialite->libelle . ' - ' . $existingInscription->niveau->libelle . '). Annulez-la avant d\'en créer une nouvelle.']);
     }
+
+    $data['date_inscription'] = now();
+
+    Inscription::create($data);
+
+    return redirect()
+        ->route('inscriptions.index')
+        ->with('success', 'Inscription enregistrée avec succès.');
+}
 
     /**
      * Afficher les détails d'une inscription
@@ -145,30 +143,27 @@ class InscriptionController extends Controller
     /**
      * Mettre à jour une inscription
      */
-    public function update(StoreInscriptionRequest $request, Inscription $inscription)
-    {
-        $data = $request->validated();
+  public function update(StoreInscriptionRequest $request, Inscription $inscription)
+{
+    $data = $request->validated();
 
-        // Vérifier si l'étudiant est déjà inscrit pour cette année et ce niveau (sauf pour cette inscription)
-        $existingInscription = Inscription::where('etudiant_id', $data['etudiant_id'])
-            ->where('annee_academique_id', $data['annee_academique_id'])
-            ->where('niveau_id', $data['niveau_id'])
-            ->where('id', '!=', $inscription->id)
-            ->whereIn('statut', ['en_attente', 'validee'])
-            ->first();
+    $existingInscription = Inscription::where('etudiant_id', $data['etudiant_id'])
+        ->where('id', '!=', $inscription->id)
+        ->whereIn('statut', ['en_attente', 'validee'])
+        ->first();
 
-        if ($existingInscription) {
-            return back()
-                ->withInput()
-                ->withErrors(['etudiant_id' => 'Cet étudiant est déjà inscrit pour cette année et ce niveau.']);
-        }
-
-        $inscription->update($data);
-
-        return redirect()
-            ->route('inscriptions.index')
-            ->with('success', 'Inscription mise à jour avec succès.');
+    if ($existingInscription) {
+        return back()
+            ->withInput()
+            ->withErrors(['etudiant_id' => 'Cet étudiant possède déjà une inscription active (' . $existingInscription->specialite->libelle . ' - ' . $existingInscription->niveau->libelle . '). Annulez-la avant d\'en créer une nouvelle.']);
     }
+
+    $inscription->update($data);
+
+    return redirect()
+        ->route('inscriptions.index')
+        ->with('success', 'Inscription mise à jour avec succès.');
+}
 
     /**
      * Supprimer une inscription

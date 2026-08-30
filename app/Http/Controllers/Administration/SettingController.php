@@ -46,4 +46,3 @@ class SettingController extends Controller
         return back()->with('success', 'Paramètres mis à jour avec succès.');
     }
 }
-//https://each-formation.com/

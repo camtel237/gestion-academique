@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
             niveauSelect.disabled = false;
             niveauSelect.innerHTML = '<option value="">Chargement...</option>';
             
-            fetch(`/get.niveaux.by.specialite.inscription?specialite_id=${specialiteId}`)
+fetch(`/get-niveaux-by-specialite-inscription?specialite_id=${specialiteId}`)
                 .then(response => response.json())
                 .then(data => {
                     niveauSelect.innerHTML = '<option value="">Sélectionner un niveau</option>';

@@ -40,10 +40,20 @@ public function import(Request $request)
 
     return back()->with('success', 'Étudiants importés avec succès.');
 }
-    public function index()
+    public function index(Request $request)
     {
-        $etudiants = Etudiant::orderBy('nom')->paginate(15);
-        return view('etudiants.index', compact('etudiants'));
+        $query = Etudiant::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('nom', 'like', "%$search%")
+                ->orWhere('prenom', 'like', "%$search%")
+                ->orWhere('matricule', 'like', "%$search%");
+        }
+
+        $etudiants = $query->orderBy('nom')->paginate(15);
+        $search = $request->get('search');
+        return view('etudiants.index', compact('etudiants', 'search'));
     }
 
     public function create()

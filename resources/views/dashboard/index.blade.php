@@ -111,6 +111,37 @@
         </ul>
     </div>
 </div>
+{{-- ============================================ --}}
+{{-- NOUVEAUX GRAPHIQUES --}}
+{{-- ============================================ --}}
+<div class="grid lg:grid-cols-2 gap-5 mt-5">
+
+    <div class="bg-white rounded-2xl p-5 border border-slate-100">
+        <h3 class="font-bold text-slate-800 mb-4">Étudiants par département — {{ $anneeActive->libelle ?? 'Aucune année active' }}</h3>
+        <canvas id="departementChart" height="200"></canvas>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 border border-slate-100">
+        <h3 class="font-bold text-slate-800 mb-4">Taux de réussite par département (%)</h3>
+        <canvas id="reussiteDepartementChart" height="200"></canvas>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 border border-slate-100">
+        <h3 class="font-bold text-slate-800 mb-4">Évolution du taux de réussite (%)</h3>
+        <canvas id="evolutionReussiteChart" height="200"></canvas>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 border border-slate-100">
+        <h3 class="font-bold text-slate-800 mb-4">Répartition par pays</h3>
+        <canvas id="paysChart" height="200"></canvas>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 border border-slate-100 lg:col-span-2 max-w-sm mx-auto">
+        <h3 class="font-bold text-slate-800 mb-4 text-center">Répartition par sexe</h3>
+        <canvas id="sexeChart" height="200"></canvas>
+    </div>
+
+</div>
 
 <div id="chart-inscriptions" class="bg-white rounded-2xl p-5 border border-slate-100">
     <h3 class="font-bold text-slate-800 mb-4">Inscriptions par mois — {{ $anneeActive->libelle ?? 'Aucune année active' }}</h3>
@@ -137,6 +168,91 @@ document.addEventListener('DOMContentLoaded', function () {
             plugins: { legend: { display: false } },
             scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
         }
+    });
+    // Étudiants par département (donut)
+    new Chart(document.getElementById('departementChart'), {
+        type: 'doughnut',
+        data: {
+            labels: @json($etudiantsParDepartement['labels']),
+            datasets: [{
+                data: @json($etudiantsParDepartement['data']),
+                backgroundColor: ['#1a365d', '#2563eb', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+
+    // Taux de réussite par département (barres horizontales)
+    new Chart(document.getElementById('reussiteDepartementChart'), {
+        type: 'bar',
+        data: {
+            labels: @json($tauxReussiteParDepartement['labels']),
+            datasets: [{
+                label: 'Taux de réussite (%)',
+                data: @json($tauxReussiteParDepartement['data']),
+                backgroundColor: '#10b981',
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { x: { beginAtZero: true, max: 100 } }
+        }
+    });
+
+    // Évolution du taux de réussite (ligne)
+    new Chart(document.getElementById('evolutionReussiteChart'), {
+        type: 'line',
+        data: {
+            labels: @json($evolutionTauxReussite['labels']),
+            datasets: [{
+                label: 'Taux de réussite (%)',
+                data: @json($evolutionTauxReussite['data']),
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                fill: true,
+                tension: 0.3,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, max: 100 } }
+        }
+    });
+
+    // Répartition par pays (barres)
+    new Chart(document.getElementById('paysChart'), {
+        type: 'bar',
+        data: {
+            labels: @json($repartitionParPays['labels']),
+            datasets: [{
+                label: 'Étudiants',
+                data: @json($repartitionParPays['data']),
+                backgroundColor: '#0ea5e9',
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+
+    // Répartition par sexe (donut)
+    new Chart(document.getElementById('sexeChart'), {
+        type: 'doughnut',
+        data: {
+            labels: @json($repartitionParSexe['labels']),
+            datasets: [{
+                data: @json($repartitionParSexe['data']),
+                backgroundColor: ['#2563eb', '#ec4899'],
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
     });
 });
 </script>

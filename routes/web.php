@@ -21,6 +21,7 @@ use App\Http\Controllers\EffetsAcademiques\CertificatController;
 use App\Http\Controllers\EffetsAcademiques\ReleveController;
 use App\Http\Controllers\EffetsAcademiques\EffectifController;
 use App\Http\Controllers\Administration\SettingController;
+use App\Http\Controllers\Administration\ProfileController;
 
 
 
@@ -56,6 +57,11 @@ Route::middleware(['auth'])->group(function () {
     // ============================================
 
     Route::middleware(['role:admin'])->group(function () {
+
+
+        // ----- Profil personnel -----
+        Route::get('/profile', fn () => redirect()->route('settings.index'))->name('profile.show');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
         // ----- Années académiques -----
         Route::resource('annees-academiques', AnneeAcademiqueController::class)
